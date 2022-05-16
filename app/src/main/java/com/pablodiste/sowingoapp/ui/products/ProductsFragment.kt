@@ -20,9 +20,10 @@ import dagger.hilt.android.AndroidEntryPoint
 private const val TAG = "ProductsFragment"
 @AndroidEntryPoint
 class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.OnItemClickListener,
-    SearchView.OnQueryTextListener {
+    SearchView.OnQueryTextListener, MenuItem.OnActionExpandListener {
 
     private val viewModel: ProductsViewModel by viewModels()
+    private lateinit var searchView: SearchView
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,10 +74,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
         inflater.inflate(R.menu.products_menu, menu)
 
         val searchItem = menu.findItem(R.id.search)
-        val searchView: SearchView = searchItem.actionView as SearchView
+        searchView = searchItem.actionView as SearchView
         searchView.queryHint = "Search Products"
         searchView.setOnQueryTextListener(this)
         searchView.isIconified = false
+        searchView.isIconifiedByDefault = true
+
+        searchItem.setOnActionExpandListener(this)
 
         super.onCreateOptionsMenu(menu, inflater)
     }
@@ -101,6 +105,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
+        searchView.clearFocus()
         viewModel.textFilter = query.orEmpty()
         viewModel.refresh()
         return true
@@ -109,6 +114,16 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
     override fun onQueryTextChange(newText: String?): Boolean {
         viewModel.textFilter = newText.orEmpty()
         viewModel.refresh()
+        return true
+    }
+
+    override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+        searchView.requestFocus()
+        return true
+    }
+
+    override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+        searchView.clearFocus()
         return true
     }
 }
