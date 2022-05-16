@@ -14,7 +14,6 @@ import com.pablodiste.sowingoapp.data.model.Product
 import com.pablodiste.sowingoapp.databinding.FragmentProductsBinding
 import com.pablodiste.sowingoapp.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_products.*
 
 
 private const val TAG = "ProductsFragment"
@@ -22,7 +21,6 @@ private const val TAG = "ProductsFragment"
 class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.OnItemClickListener {
 
     private val viewModel: ProductsViewModel by viewModels()
-    var isLoading = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,27 +44,26 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
                 setHasFixedSize(true)
             }
             (requireActivity() as AppCompatActivity).setSupportActionBar(toolbar)
+            swipeContainer.setOnRefreshListener {
+                viewModel.getProducts()
+            }
+            swipeContainer.post { swipeContainer.isRefreshing = true }
         }
 
         viewModel.productsLiveData.observe(viewLifecycleOwner) {
-            when(it){
+            when (it) {
                 is Resource.Success -> {
-                    progressBar.visibility = View.INVISIBLE
-                    isLoading = false
                     it.data?.let { products -> productsAdapter.submitList(products) }
                 }
                 is Resource.Error -> {
-                    progressBar.visibility = View.INVISIBLE
-                    isLoading = true
                     it.message?.let { message ->
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                         Log.e(TAG, "Error: $message")
                     }
                 }
-                is Resource.Loading -> {
-                    progressBar.visibility = View.VISIBLE
-                }
+                is Resource.Loading -> { }
             }
+            binding.swipeContainer.isRefreshing = false
         }
     }
 
