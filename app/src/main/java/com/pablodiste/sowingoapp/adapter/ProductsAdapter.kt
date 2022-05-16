@@ -3,6 +3,7 @@ package com.pablodiste.sowingoapp.adapter
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,9 +29,16 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
                 root.setOnClickListener {
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION){
-                        val article = getItem(position)
+                        val product = getItem(position)
                         //TODO click
                         //listener.onItemClick(article)
+                    }
+                }
+                cbFavorite.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION){
+                        val product = getItem(position)
+                        listener.onFavoriteCheckedChange(product, isChecked)
                     }
                 }
             }
@@ -49,6 +57,7 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
 
     interface OnItemClickListener{
         fun onItemClick(product: Product)
+        fun onFavoriteCheckedChange(product: Product, isFavorite: Boolean)
     }
 
 

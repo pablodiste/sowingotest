@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.pablodiste.sowingoapp.data.model.Product
 import com.pablodiste.sowingoapp.data.model.ProductsResponse
 import com.pablodiste.sowingoapp.repository.ProductsRepository
 import com.pablodiste.sowingoapp.util.NetworkUtil.Companion.hasInternetConnection
@@ -21,43 +22,71 @@ class ProductsViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
-    val products: MutableLiveData<Resource<ProductsResponse>> = MutableLiveData()
-    var productsResponse: ProductsResponse? = null
+    val productsLiveData: MutableLiveData<Resource<List<Product>>> = MutableLiveData()
+    lateinit var productsResponse: ProductsResponse
+    var showOnlyFavorites: Boolean = false
 
     init {
         getProducts()
     }
 
-    fun getProducts() = viewModelScope.launch {
+    private fun getProducts() = viewModelScope.launch {
         safeProductsCall()
     }
 
     private suspend fun safeProductsCall(){
-        products.postValue(Resource.Loading())
-        try{
-            if(hasInternetConnection(context)){
+        productsLiveData.postValue(Resource.Loading())
+        try {
+            if (hasInternetConnection(context)) {
                 val response = productsRepository.getProducts()
-                products.postValue(handleProductsResponse(response))
-            }
-            else{
-                products.postValue(Resource.Error("No Internet Connection"))
+                productsLiveData.postValue(handleProductsResponse(response))
+            } else {
+                productsLiveData.postValue(Resource.Error("No Internet Connection"))
             }
         }
         catch (ex : Exception){
             when (ex) {
-                is IOException -> products.postValue(Resource.Error("Network Failure"))
-                else -> products.postValue(Resource.Error("Conversion Error"))
+                is IOException -> productsLiveData.postValue(Resource.Error("Network Failure"))
+                else -> productsLiveData.postValue(Resource.Error("Conversion Error"))
             }
         }
     }
 
-    private fun handleProductsResponse(response: Response<ProductsResponse>): Resource<ProductsResponse> {
+    private fun applyFilter(products: List<Product>): List<Product> {
+        return if (showOnlyFavorites) products.filter { it.isFavorite } else products
+    }
+
+    private fun handleProductsResponse(response: Response<ProductsResponse>): Resource<List<Product>> {
         if (response.isSuccessful) {
             response.body()?.let { resultResponse ->
                 productsResponse = resultResponse
-                return Resource.Success(productsResponse ?: resultResponse)
+                return Resource.Success(applyFilter(resultResponse.hits))
             }
         }
         return Resource.Error(response.message())
+    }
+
+    fun setFavorite(product: Product, favorite: Boolean) {
+        product.isFavorite = favorite
+        viewModelScope.launch {
+            try {
+                if (hasInternetConnection(context)) {
+                    when (favorite) {
+                        true -> productsRepository.addToFavorites(product)
+                        false -> productsRepository.removeFromFavorites(product)
+                    }
+                } else {
+                    productsLiveData.postValue(Resource.Error("No Internet Connection"))
+                }
+            }
+            catch (ex : Exception) {
+                productsLiveData.postValue(Resource.Error("Error updating favorite"))
+            }
+            refresh()
+        }
+    }
+
+    fun refresh() {
+        productsLiveData.postValue(Resource.Success(applyFilter(productsResponse.hits)))
     }
 }

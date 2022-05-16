@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_checked="false"
+        >
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <size android:height="40dp" android:width="40dp"/>
+                    <solid android:color="#00FFFFFF"/>
+                </shape>
+            </item>
+            <item android:gravity="center" android:drawable="@drawable/ic_heart"
+                android:top="10dp"
+                android:bottom="10dp"
+                android:left="8dp"
+                android:right="10dp" />
+        </layer-list>
+    </item>
+    <item
+        android:state_checked="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <size android:height="40dp" android:width="40dp"/>
+                    <solid android:color="#00FFFFFF"/>
+                </shape>
+            </item>
+            <item android:gravity="center" android:drawable="@drawable/ic_heart_filled"
+                android:top="10dp"
+                android:bottom="10dp"
+                android:left="8dp"
+                android:right="10dp" />
+        </layer-list>
+    </item>
+    <item android:drawable="@drawable/ic_heart" />
+</selector>

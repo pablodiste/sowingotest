@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/favoriteProducts"
+    <item android:id="@+id/filterByFavorites"
         android:title="Show/Hide Favorites"
-        android:icon="@drawable/ic_favorite" />
+        android:icon="@drawable/ic_favorite"
+        android:checkable="true" />
 
 </menu>

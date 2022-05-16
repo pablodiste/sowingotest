@@ -5,7 +5,8 @@ data class Product(
     val name: String?,
     val main_image: String?,
     val advertising_badges: AdvertisingBadges?,
-    val vendor_inventory: MutableList<VendorInventory>
+    val vendor_inventory: MutableList<VendorInventory>,
+    var isFavorite: Boolean = false
 )
 
 data class AdvertisingBadges(val has_badge: Boolean?, val badges: MutableList<Badge>)
