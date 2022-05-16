@@ -30,7 +30,7 @@ class ProductsViewModel @Inject constructor(
         getProducts()
     }
 
-    private fun getProducts() = viewModelScope.launch {
+    fun getProducts() = viewModelScope.launch {
         safeProductsCall()
     }
 
@@ -39,7 +39,7 @@ class ProductsViewModel @Inject constructor(
         try {
             if (hasInternetConnection(context)) {
                 val response = productsRepository.getProducts()
-                productsLiveData.postValue(handleProductsResponse(response))
+                handleProductsResponse(response)
             } else {
                 productsLiveData.postValue(Resource.Error("No Internet Connection"))
             }
@@ -56,14 +56,15 @@ class ProductsViewModel @Inject constructor(
         return if (showOnlyFavorites) products.filter { it.isFavorite } else products
     }
 
-    private fun handleProductsResponse(response: Response<ProductsResponse>): Resource<List<Product>> {
+    private fun handleProductsResponse(response: Response<ProductsResponse>) {
         if (response.isSuccessful) {
             response.body()?.let { resultResponse ->
                 productsResponse = resultResponse
-                return Resource.Success(applyFilter(resultResponse.hits))
+                refresh()
+                return
             }
         }
-        return Resource.Error(response.message())
+        productsLiveData.postValue(Resource.Error(response.message()))
     }
 
     fun setFavorite(product: Product, favorite: Boolean) {
