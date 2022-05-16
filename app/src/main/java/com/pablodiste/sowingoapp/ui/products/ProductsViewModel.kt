@@ -23,8 +23,10 @@ class ProductsViewModel @Inject constructor(
 ) : ViewModel() {
 
     val productsLiveData: MutableLiveData<Resource<List<Product>>> = MutableLiveData()
-    lateinit var productsResponse: ProductsResponse
+    private lateinit var productsResponse: ProductsResponse
+
     var showOnlyFavorites: Boolean = false
+    var textFilter: String = ""
 
     init {
         getProducts()
@@ -52,8 +54,11 @@ class ProductsViewModel @Inject constructor(
         }
     }
 
-    private fun applyFilter(products: List<Product>): List<Product> {
-        return if (showOnlyFavorites) products.filter { it.isFavorite } else products
+    private fun applyFilters(products: List<Product>): List<Product> {
+        return products.filter {
+            (!showOnlyFavorites || (showOnlyFavorites && it.isFavorite)) &&
+            (textFilter.isEmpty() || (textFilter.isNotEmpty() && it.name!!.contains(textFilter)))
+        }
     }
 
     private fun handleProductsResponse(response: Response<ProductsResponse>) {
@@ -88,6 +93,6 @@ class ProductsViewModel @Inject constructor(
     }
 
     fun refresh() {
-        productsLiveData.postValue(Resource.Success(applyFilter(productsResponse.hits)))
+        productsLiveData.postValue(Resource.Success(applyFilters(productsResponse.hits)))
     }
 }
