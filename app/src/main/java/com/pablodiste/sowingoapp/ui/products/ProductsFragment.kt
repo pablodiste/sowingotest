@@ -3,6 +3,7 @@ package com.pablodiste.sowingoapp.ui.products
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.SearchView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -18,7 +19,8 @@ import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "ProductsFragment"
 @AndroidEntryPoint
-class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.OnItemClickListener {
+class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.OnItemClickListener,
+    SearchView.OnQueryTextListener {
 
     private val viewModel: ProductsViewModel by viewModels()
 
@@ -69,6 +71,13 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.products_menu, menu)
+
+        val searchItem = menu.findItem(R.id.search)
+        val searchView: SearchView = searchItem.actionView as SearchView
+        searchView.queryHint = "Search Products"
+        searchView.setOnQueryTextListener(this)
+        searchView.isIconified = false
+
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -89,5 +98,17 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
 
     override fun onFavoriteCheckedChange(product: Product, isFavorite: Boolean) {
         viewModel.setFavorite(product, isFavorite)
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        viewModel.textFilter = query.orEmpty()
+        viewModel.refresh()
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String?): Boolean {
+        viewModel.textFilter = newText.orEmpty()
+        viewModel.refresh()
+        return true
     }
 }

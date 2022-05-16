@@ -57,7 +57,7 @@ class ProductsViewModel @Inject constructor(
     private fun applyFilters(products: List<Product>): List<Product> {
         return products.filter {
             (!showOnlyFavorites || (showOnlyFavorites && it.isFavorite)) &&
-            (textFilter.isEmpty() || (textFilter.isNotEmpty() && it.name!!.contains(textFilter)))
+            (textFilter.isEmpty() || (textFilter.isNotEmpty() && it.name!!.contains(textFilter, ignoreCase = true)))
         }
     }
 
