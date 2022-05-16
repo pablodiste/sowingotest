@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.pablodiste.sowingoapp.data.model.Product
 import com.pablodiste.sowingoapp.databinding.ItemProductBinding
 
@@ -34,14 +35,22 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
                         //listener.onItemClick(article)
                     }
                 }
-                cbFavorite.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
-                    val position = adapterPosition
-                    if (position != RecyclerView.NO_POSITION){
-                        val product = getItem(position)
-                        listener.onFavoriteCheckedChange(product, isChecked)
-                    }
+                registerFavoriteListener(cbFavorite)
+            }
+        }
+
+        private fun registerFavoriteListener(cbFavorite: MaterialCheckBox) {
+            cbFavorite.setOnCheckedChangeListener { _: CompoundButton, isChecked: Boolean ->
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    val product = getItem(position)
+                    listener.onFavoriteCheckedChange(product, isChecked)
                 }
             }
+        }
+
+        private fun removeFavoriteListener(cbFavorite: MaterialCheckBox) {
+            cbFavorite.setOnCheckedChangeListener(null)
         }
 
         fun bind(product: Product){
@@ -51,6 +60,11 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
                 tvPrice.text = "$" + product.vendor_inventory.firstOrNull()?.price?.toString() ?: ""
                 tvListPrice.text = "$" + product.vendor_inventory.firstOrNull()?.list_price?.toString() ?: ""
                 tvListPrice.paintFlags = tvListPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                with (cbFavorite) {
+                    removeFavoriteListener(this)
+                    cbFavorite.isChecked = product.isFavorite
+                    registerFavoriteListener(this)
+                }
             }
         }
     }
