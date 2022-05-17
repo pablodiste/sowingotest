@@ -1,6 +1,14 @@
-# Sowing Test App ✔️
+# Sowingo Test App
 
-The App is using the [Mock Api] to searching products.
+The App is using the [Mock Api] for searching products.
+
+### Features
+
+- Fetching product data from API
+- Search/Filter by name
+- Make changes to favorite status, using an API call
+- Filter by favorites
+- Pull to refresh, clears favorites
 
 ### Requirements
 
