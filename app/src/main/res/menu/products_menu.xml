@@ -9,7 +9,7 @@
         app:actionViewClass="android.widget.SearchView" />
 
     <item android:id="@+id/filterByFavorites"
-        android:title="Show/Hide Favorites"
+        android:title="@string/show_hide_favorites"
         android:icon="@drawable/ic_favorite"
         android:checkable="true" />
 

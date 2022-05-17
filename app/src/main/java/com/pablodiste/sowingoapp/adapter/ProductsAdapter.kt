@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.checkbox.MaterialCheckBox
+import com.pablodiste.sowingoapp.R
 import com.pablodiste.sowingoapp.data.model.Product
 import com.pablodiste.sowingoapp.databinding.ItemProductBinding
 
@@ -31,8 +32,7 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
                     val position = adapterPosition
                     if (position != RecyclerView.NO_POSITION){
                         val product = getItem(position)
-                        //TODO click
-                        //listener.onItemClick(article)
+                        //TODO: Implement click
                     }
                 }
                 registerFavoriteListener(cbFavorite)
@@ -55,7 +55,10 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
 
         fun bind(product: Product){
             binding.apply {
-                Glide.with(itemView).load(product.main_image).into(ivImage)
+                Glide.with(itemView)
+                    .load(product.main_image)
+                    .placeholder(R.drawable.ic_placeholder)
+                    .into(ivImage)
                 tvTitle.text = product.name
                 tvPrice.text = "$" + product.vendor_inventory.firstOrNull()?.price?.toString() ?: ""
                 tvListPrice.text = "$" + product.vendor_inventory.firstOrNull()?.list_price?.toString() ?: ""
@@ -74,7 +77,6 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
         fun onFavoriteCheckedChange(product: Product, isFavorite: Boolean)
     }
 
-
     class DiffCallback : DiffUtil.ItemCallback<Product>(){
         override fun areItemsTheSame(oldItem: Product, newItem: Product): Boolean {
             return oldItem.objectID == newItem.objectID
@@ -83,6 +85,5 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
         override fun areContentsTheSame(oldItem: Product, newItem: Product): Boolean {
             return oldItem == newItem
         }
-
     }
 }

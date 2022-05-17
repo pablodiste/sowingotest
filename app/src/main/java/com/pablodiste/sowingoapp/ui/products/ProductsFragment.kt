@@ -57,16 +57,17 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
             when (it) {
                 is Resource.Success -> {
                     it.data?.let { products -> productsAdapter.submitList(products) }
+                    binding.swipeContainer.isRefreshing = false
                 }
                 is Resource.Error -> {
                     it.message?.let { message ->
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                         Log.e(TAG, "Error: $message")
                     }
+                    binding.swipeContainer.isRefreshing = false
                 }
                 is Resource.Loading -> { }
             }
-            binding.swipeContainer.isRefreshing = false
         }
     }
 
@@ -75,7 +76,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
 
         val searchItem = menu.findItem(R.id.search)
         searchView = searchItem.actionView as SearchView
-        searchView.queryHint = "Search Products"
+        searchView.queryHint = getString(R.string.search_products)
         searchView.setOnQueryTextListener(this)
         searchView.isIconified = false
         searchView.isIconifiedByDefault = true
