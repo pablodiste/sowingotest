@@ -4,9 +4,9 @@ The App is using the [Mock Api] to searching products.
 
 ### Requirements
 
-Android Studio Bumblebee or later
-Java 11 installed in your system
-Android device with API 31+
+- Android Studio. The latest version can be downloaded from [here](https://developer.android.com/studio/).
+- Java 11 installed in your system
+- Android device with API 30 or 31 (Testing devices, but it supports 17+)
 
 ### Running from Code
 

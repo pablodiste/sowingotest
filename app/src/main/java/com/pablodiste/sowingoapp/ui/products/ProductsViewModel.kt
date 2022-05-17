@@ -16,6 +16,10 @@ import retrofit2.Response
 import java.io.IOException
 import javax.inject.Inject
 
+/**
+ * Holds the logic for getting the products and storing the favorites
+ * @author pablodiste
+ */
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
     private val productsRepository: ProductsRepository,
@@ -32,11 +36,33 @@ class ProductsViewModel @Inject constructor(
         getProducts()
     }
 
+    /**
+     * Requests a list of products. The products are returned via productsLiveData
+     */
     fun getProducts() = viewModelScope.launch {
-        safeProductsCall()
+        fetchProducts()
     }
 
-    private suspend fun safeProductsCall(){
+    /**
+     * Requests a change of the favorite state for a product.
+     * @param product Product to favorite/unfavorite
+     * @param favorite true when adding to favorites, false otherwise
+     */
+    fun setFavorite(product: Product, favorite: Boolean) {
+        product.isFavorite = favorite
+        viewModelScope.launch {
+            addOrRemoveToFavorites(product, favorite)
+        }
+    }
+
+    /**
+     * Applies filters to current list of products and sends them to the UI
+     */
+    fun refresh() {
+        productsLiveData.postValue(Resource.Success(applyFilters(productsResponse.hits)))
+    }
+
+    private suspend fun fetchProducts(){
         productsLiveData.postValue(Resource.Loading())
         try {
             if (hasInternetConnection(context)) {
@@ -46,19 +72,30 @@ class ProductsViewModel @Inject constructor(
                 productsLiveData.postValue(Resource.Error("No Internet Connection"))
             }
         }
-        catch (ex : Exception){
-            when (ex) {
-                is IOException -> productsLiveData.postValue(Resource.Error("Network Failure"))
-                else -> productsLiveData.postValue(Resource.Error("Conversion Error"))
-            }
+        catch (ex : Exception) {
+            sendErrorMessage(ex)
         }
     }
 
-    private fun applyFilters(products: List<Product>): List<Product> {
-        return products.filter {
-            (!showOnlyFavorites || (showOnlyFavorites && it.isFavorite)) &&
-            (textFilter.isEmpty() || (textFilter.isNotEmpty() && it.name!!.contains(textFilter, ignoreCase = true)))
+    private suspend fun addOrRemoveToFavorites(product: Product,favorite: Boolean) {
+        try {
+            if (hasInternetConnection(context)) {
+                when (favorite) {
+                    true -> productsRepository.addToFavorites(product)
+                    false -> productsRepository.removeFromFavorites(product)
+                }
+            } else {
+                productsLiveData.postValue(Resource.Error("No Internet Connection"))
+            }
+        } catch (ex: Exception) {
+            sendErrorMessage(ex)
         }
+        refresh()
+    }
+
+    private fun sendErrorMessage(ex: Exception) = when (ex) {
+        is IOException -> productsLiveData.postValue(Resource.Error("Network Failure"))
+        else -> productsLiveData.postValue(Resource.Error("Conversion Error"))
     }
 
     private fun handleProductsResponse(response: Response<ProductsResponse>) {
@@ -72,27 +109,15 @@ class ProductsViewModel @Inject constructor(
         productsLiveData.postValue(Resource.Error(response.message()))
     }
 
-    fun setFavorite(product: Product, favorite: Boolean) {
-        product.isFavorite = favorite
-        viewModelScope.launch {
-            try {
-                if (hasInternetConnection(context)) {
-                    when (favorite) {
-                        true -> productsRepository.addToFavorites(product)
-                        false -> productsRepository.removeFromFavorites(product)
-                    }
-                } else {
-                    productsLiveData.postValue(Resource.Error("No Internet Connection"))
-                }
-            }
-            catch (ex : Exception) {
-                productsLiveData.postValue(Resource.Error("Error updating favorite"))
-            }
-            refresh()
+    /**
+     * The list of products are filtered by the favorites toggle and can also be filtered by the search text
+     * We can include additional filter conditions here, like SKU, keywords, description
+     */
+    private fun applyFilters(products: List<Product>): List<Product> {
+        return products.filter {
+            (!showOnlyFavorites || (showOnlyFavorites && it.isFavorite)) &&
+            (textFilter.isEmpty() || (textFilter.isNotEmpty() && it.name!!.contains(textFilter, ignoreCase = true)))
         }
     }
 
-    fun refresh() {
-        productsLiveData.postValue(Resource.Success(applyFilters(productsResponse.hits)))
-    }
 }

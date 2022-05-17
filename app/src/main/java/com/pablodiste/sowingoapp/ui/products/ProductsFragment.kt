@@ -16,7 +16,9 @@ import com.pablodiste.sowingoapp.databinding.FragmentProductsBinding
 import com.pablodiste.sowingoapp.util.Resource
 import dagger.hilt.android.AndroidEntryPoint
 
-
+/**
+ * Screen showing the list of products and filters for them
+ */
 private const val TAG = "ProductsFragment"
 @AndroidEntryPoint
 class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.OnItemClickListener,
@@ -66,7 +68,9 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
                     }
                     binding.swipeContainer.isRefreshing = false
                 }
-                is Resource.Loading -> { }
+                is Resource.Loading -> {
+                    binding.swipeContainer.isRefreshing = true
+                }
             }
         }
     }
@@ -102,7 +106,7 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
     }
 
     override fun onItemClick(product: Product) {
-        // TODO: Item Click
+        // TODO: Item click, this might lead to a product details screen
     }
 
     override fun onFavoriteCheckedChange(product: Product, isFavorite: Boolean) {
