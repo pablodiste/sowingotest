@@ -60,8 +60,8 @@ class ProductsAdapter(private val listener: OnItemClickListener): ListAdapter<Pr
                     .placeholder(R.drawable.ic_placeholder)
                     .into(ivImage)
                 tvTitle.text = product.name
-                tvPrice.text = "$" + product.vendor_inventory.firstOrNull()?.price?.toString() ?: ""
-                tvListPrice.text = "$" + product.vendor_inventory.firstOrNull()?.list_price?.toString() ?: ""
+                tvPrice.text = "$" + product.vendor_inventory?.firstOrNull()?.price?.toString() ?: ""
+                tvListPrice.text = "$" + product.vendor_inventory?.firstOrNull()?.list_price?.toString() ?: ""
                 tvListPrice.paintFlags = tvListPrice.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 with (cbFavorite) {
                     removeFavoriteListener(this)

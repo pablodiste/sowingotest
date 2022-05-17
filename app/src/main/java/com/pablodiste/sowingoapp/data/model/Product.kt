@@ -1,11 +1,11 @@
 package com.pablodiste.sowingoapp.data.model
 
 data class Product(
-    var objectID: String?,
-    val name: String?,
-    val main_image: String?,
-    val advertising_badges: AdvertisingBadges?,
-    val vendor_inventory: MutableList<VendorInventory>,
+    var objectID: String? = null,
+    val name: String? = null,
+    val main_image: String? = null,
+    val advertising_badges: AdvertisingBadges? = null,
+    val vendor_inventory: MutableList<VendorInventory>? = null,
     var isFavorite: Boolean = false
 )
 
