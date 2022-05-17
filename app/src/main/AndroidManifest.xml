@@ -14,7 +14,8 @@
         android:supportsRtl="true"
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.SowingoApp">
-        <activity android:name="com.pablodiste.sowingoapp.ui.ProductsActivity">
+        <activity android:name="com.pablodiste.sowingoapp.ui.ProductsActivity"
+            android:windowSoftInputMode="adjustNothing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

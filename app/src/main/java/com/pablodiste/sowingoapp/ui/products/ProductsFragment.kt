@@ -79,6 +79,10 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
         searchView.setOnQueryTextListener(this)
         searchView.isIconified = false
         searchView.isIconifiedByDefault = true
+        searchView.setOnCloseListener {
+            searchView.setQuery("", false)
+            return@setOnCloseListener true
+        }
 
         searchItem.setOnActionExpandListener(this)
 
@@ -119,10 +123,14 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
 
     override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
         searchView.requestFocus()
+        viewModel.textFilter = searchView.query.toString()
+        viewModel.refresh()
         return true
     }
 
     override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+        viewModel.textFilter = ""
+        viewModel.refresh()
         searchView.clearFocus()
         return true
     }
