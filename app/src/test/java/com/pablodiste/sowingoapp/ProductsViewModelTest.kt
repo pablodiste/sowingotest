@@ -31,15 +31,54 @@ class ProductsViewModelTest {
     }
 
     @Test
-    fun `happy path`() {
+    fun `loading products`() {
         val resource = viewModel.productsLiveData.getOrAwaitValue()
         Assert.assertTrue(resource is Resource.Success)
-        Assert.assertEquals(resource.data?.size, mockProductsResponse.hits.size)
+        Assert.assertEquals(mockProductsResponse.hits.size, resource.data?.size)
+    }
+
+    @Test
+    fun `add to favorites`() {
+        var resource = viewModel.productsLiveData.getOrAwaitValue()
+
+        viewModel.setFavorite(mockProductsResponse.hits[0], true)
+        resource = viewModel.productsLiveData.getOrAwaitValue()
+
+        Assert.assertTrue(resource is Resource.Success)
+        val favoriteCount = resource.data?.filter { it.isFavorite }?.size
+        Assert.assertEquals(1, favoriteCount)
+    }
+
+    @Test
+    fun `remove from favorites`() {
+        var resource = viewModel.productsLiveData.getOrAwaitValue()
+
+        viewModel.setFavorite(mockProductsResponse.hits[0], true)
+        viewModel.setFavorite(mockProductsResponse.hits[0], false)
+        resource = viewModel.productsLiveData.getOrAwaitValue()
+
+        Assert.assertTrue(resource is Resource.Success)
+        val favoriteCount = resource.data?.filter { it.isFavorite }?.size
+        Assert.assertEquals(0, favoriteCount)
+    }
+
+    @Test
+    fun `text search`() {
+        var resource = viewModel.productsLiveData.getOrAwaitValue()
+
+        viewModel.textFilter = "Number 2"
+        viewModel.refresh()
+        resource = viewModel.productsLiveData.getOrAwaitValue()
+
+        Assert.assertTrue(resource is Resource.Success)
+        Assert.assertEquals(1, resource.data?.size)
     }
 
     private fun products(): ProductsResponse {
-        return ProductsResponse(mutableListOf(Product(
-            name = "Product Name"
-        )))
+        return ProductsResponse(mutableListOf(
+            Product(name = "Product Number 1"),
+            Product(name = "Product Number 2"),
+            Product(name = "Product Number 3"),
+        ))
     }
 }
