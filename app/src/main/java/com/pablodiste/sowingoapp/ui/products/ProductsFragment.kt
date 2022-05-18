@@ -58,7 +58,16 @@ class ProductsFragment : Fragment(R.layout.fragment_products), ProductsAdapter.O
         viewModel.productsLiveData.observe(viewLifecycleOwner) {
             when (it) {
                 is Resource.Success -> {
-                    it.data?.let { products -> productsAdapter.submitList(products) }
+                    it.data?.let { products ->
+                        if (products.isNotEmpty()) {
+                            productsAdapter.submitList(products)
+                            binding.rvProducts.visibility = View.VISIBLE
+                            binding.tvEmptyState.visibility = View.GONE
+                        } else {
+                            binding.rvProducts.visibility = View.GONE
+                            binding.tvEmptyState.visibility = View.VISIBLE
+                        }
+                    }
                     binding.swipeContainer.isRefreshing = false
                 }
                 is Resource.Error -> {

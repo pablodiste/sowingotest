@@ -9,6 +9,7 @@ The App is using the [Mock Api] for searching products.
 - Make changes to favorite status, using an API call
 - Filter by favorites
 - Pull to refresh, clears favorites
+- Empty state
 
 ### Requirements
 
